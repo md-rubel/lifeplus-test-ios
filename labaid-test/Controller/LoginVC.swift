@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class LoginVC: UIViewController {
     
@@ -19,6 +20,8 @@ class LoginVC: UIViewController {
         UserDefaults.standard.setValue(userModel.user.phone, forKey: Shared.USER_PHONE)
         UserDefaults.standard.setValue(true, forKey: Shared.LOGGED_IN_STATUS)
     }
+    
+    private let hud = JGProgressHUD(style: .dark)
     
     @IBAction func loginButtonPressed(_ sender: CustomButton) {
         
@@ -35,17 +38,24 @@ class LoginVC: UIViewController {
             return
         }
         
+        hud.show(in: view)
+        
         ApiManager.shared.loginWith(email: email, password: password) { [self] (user) in
             if let user = user {
+                print(user)
                 saveLocalUser(with: user)
                 
                 DispatchQueue.main.async {
+                    hud.dismiss()
+                    
                     guard let homeVC = storyboard?.instantiateViewController(withIdentifier: "DashboardVC") else { return }
                     navigationController?.pushViewController(homeVC, animated: true)
                 }
                 
             } else {
                 DispatchQueue.main.async {
+                    hud.dismiss()
+                    
                     let alert = UIAlertController(title: "Failed!", message: "Either email or password or both are wrong. Please try again with correct credential.", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                     present(alert, animated: true, completion: nil)

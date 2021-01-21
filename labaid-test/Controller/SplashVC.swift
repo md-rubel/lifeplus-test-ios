@@ -22,5 +22,4 @@ class SplashVC: UIViewController {
             performSegue(withIdentifier: "OpenLoginVC", sender: self)
         }
     }
-    
 }

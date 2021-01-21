@@ -9,7 +9,7 @@ import Foundation
 
 struct Links {
     
-    public static let BASE_URL = "http://127.0.0.1:3000"
+    public static let BASE_URL = "https://life-plus-bd-test.herokuapp.com"
     
     public static let LOGIN = BASE_URL + "/users/login"
     public static let REGISTER = BASE_URL + "/users"

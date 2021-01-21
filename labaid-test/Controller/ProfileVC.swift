@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class ProfileVC: UIViewController {
     
@@ -15,14 +16,23 @@ class ProfileVC: UIViewController {
     @IBOutlet weak var phoneLabel: UILabel!
     @IBOutlet weak var containerView: UIView!
     
-
+    private let hud = JGProgressHUD(style: .dark)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        getData()
+    }
+    
     private func setupUI() {
+        backButton.setImage(#imageLiteral(resourceName: "arrow_back").withRenderingMode(.alwaysTemplate), for: .normal)
+        
         containerView.layer.cornerRadius = 10
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor(red: 98/255,
@@ -35,6 +45,19 @@ class ProfileVC: UIViewController {
         phoneLabel.text = nil
     }
     
+    private func getData() {
+        guard let name = UserDefaults.standard.value(forKey: Shared.USER_NAME) as? String,
+              let email = UserDefaults.standard.value(forKey: Shared.USER_EMAIL) as? String,
+              let phone = UserDefaults.standard.value(forKey: Shared.USER_PHONE) as? String
+        else {
+            return
+        }
+        
+        nameLabel.text = name
+        emailLabel.text = email
+        phoneLabel.text = phone
+    }
+    
     @IBAction func backButtonPressed(_ sender: UIButton) {
         navigationController?.popViewController(animated: true)
     }
@@ -45,10 +68,17 @@ class ProfileVC: UIViewController {
             return
         }
         
+        hud.show(in: view)
+        
         ApiManager.shared.logoutWith(token: token) { [self] (success) in
             if success {
-                UserDefaults.standard.setValue(false, forKey: Shared.LOGGED_IN_STATUS)
-                navigationController?.popToRootViewController(animated: true)
+                UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+                UserDefaults.standard.synchronize()
+                
+                DispatchQueue.main.async {
+                    hud.dismiss()
+                    navigationController?.popToRootViewController(animated: true)
+                }
             }
         }
     }

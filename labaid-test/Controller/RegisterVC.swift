@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class RegisterVC: UIViewController {
     
@@ -14,10 +15,13 @@ class RegisterVC: UIViewController {
     @IBOutlet weak var passwordTF: CustomTF!
     @IBOutlet weak var phoneTF: CustomTF!
     @IBOutlet weak var backButton: UIButton!
+    
+    private let hud = JGProgressHUD(style: .dark)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        backButton.setImage(#imageLiteral(resourceName: "arrow_back").withRenderingMode(.alwaysTemplate), for: .normal)
     }
     
     @IBAction func backButtonPressed(_ sender: UIButton) {
@@ -51,24 +55,28 @@ class RegisterVC: UIViewController {
             return
         }
         
-        ApiManager.shared.registerWith(name: "", email: "", password: "", phone: "") { [self] (user) in
+        hud.show(in: view)
+        
+        ApiManager.shared.registerWith(name: name, email: email, password: password, phone: phone) { [self] (user) in
             if let user = user {
                 saveLocalUser(with: user)
                 
                 DispatchQueue.main.async {
+                    hud.dismiss()
+                    
                     guard let homeVC = storyboard?.instantiateViewController(withIdentifier: "DashboardVC") else { return }
                     navigationController?.pushViewController(homeVC, animated: true)
                 }
                 
             } else {
                 DispatchQueue.main.async {
+                    hud.dismiss()
+                    
                     let alert = UIAlertController(title: "Failed!", message: "There is something wrong. It might there is already a user with the email you provided. Plase try again.", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                     present(alert, animated: true, completion: nil)
                 }
             }
         }
-
     }
-    
 }

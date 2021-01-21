@@ -13,9 +13,8 @@ struct SearchModel: Codable {
     let premiered: String
     let image: Image
     let summary: String
-    let updated: Int
 }
 
 struct Image: Codable {
-    let medium, original: String
+    let medium: String
 }
